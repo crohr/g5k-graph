@@ -9,6 +9,7 @@ module Grid5000
     def initialize(nodes, options = {})
       @nodes = nodes
       @options = options
+      @colors = {}
     end
     
     class << self
@@ -66,7 +67,7 @@ module Grid5000
          File.unlink rrd if File.exist?(rrd)
          system "rrdtool restore #{xml} #{rrd}"
          # generate random color
-         color = "%06x" % (rand * 0xffffff)
+         color = color(node)
          commands[metric] += " DEF:#{node}=#{rrd}:sum:AVERAGE LINE2:#{node}##{color}:#{node}"
         end
         commands.each do |metric, cmd| 
@@ -75,6 +76,22 @@ module Grid5000
         end
         puts "The following graphs have been generated in #{dir.inspect}:"
         puts Dir["*.png"].join("\n")
+      end
+    end
+    
+    # FIXME: a bit too verbose
+    def color(id)
+      if @colors.has_key?(id)        
+        @colors[id]
+      else
+        c = "%06x" % (rand * 0xffffff)
+        if @colors.values.find{|v| v == c}
+          # find another color
+          color(id)
+        else
+          @colors[id] = c
+          @colors[id]
+        end
       end
     end
     
