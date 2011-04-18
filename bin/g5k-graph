@@ -9,7 +9,8 @@ require 'optparse'
   :resolution => 15,
   :metrics => ['mem_free', 'cpu_idle', 'bytes_in', 'bytes_out'],
   :to => (Time.now.to_i/15*15),
-  :output => File.expand_path("./data")
+  :output => File.expand_path("./data"),
+  :empty => false
 }
 
 option_parser = OptionParser.new do |opts|
@@ -35,6 +36,9 @@ BANNER
   end
   opts.on("-o=", "--output=", "Where to write the timeseries data and graphs [default=#{@options[:output]}]") do |v|
     @options[:output] = File.expand_path(v)
+  end
+  opts.on("--empty", "Empty the output directory before writing into it [default=#{@options[:empty].inspect}]") do |v|
+    @options[:empty] = true
   end
   opts.on_tail("-h", "--help", "Show this message") do
     puts opts

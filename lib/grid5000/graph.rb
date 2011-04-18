@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module Grid5000
   class Graph
     VERSION = "0.1.0"
@@ -26,6 +28,8 @@ module Grid5000
       raise(Error, "No nodes given") if nodes.empty?
 
       if nodes.all?{|n| n =~ /\.\w+\.grid5000\.fr$/}
+        FileUtils.rm_rf options[:output] if options[:empty]
+        FileUtils.mkdir_p options[:output]
         fetch_timeseries
         graph_timeseries
       else
@@ -54,7 +58,7 @@ module Grid5000
     def graph_timeseries
       Dir.chdir(options[:output]) do |dir|
         Dir["*.zip"].each do |zip|
-         system "unzip #{zip}"
+         system "unzip -o #{zip}"
         end
         commands = {}
         Dir["*.grid5000.fr/*.xml"].each do |xml|
